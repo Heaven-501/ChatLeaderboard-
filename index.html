@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Leaderboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    table {
+      margin: auto;
+      border-collapse: collapse;
+      width: 80%;
+      max-width: 600px;
+      background: #222;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #000;
+    }
+    th, td {
+      padding: 12px 20px;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      background: #333;
+    }
+    tr:hover {
+      background: #333;
+    }
+    select {
+      padding: 8px 12px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Telegram Message Leaderboard</h1>
+
+<table id="board"></table>
+
+<script>
+  // Fetch stats.json and render leaderboard
+  fetch("stats.json")
+    .then(response => response.json())
+    .then(data => {
+      // Convert object to array of [username, count]
+      let users = Object.entries(data);
+      
+      // Sort by message count descending
+      users.sort((a, b) => b[1] - a[1]);
+
+      // Build table HTML
+      let html = "<tr><th>#</th><th>User</th><th>Messages</th></tr>";
+      users.forEach((u, i) => {
+        html += `<tr><td>${i+1}</td><td>${u[0]}</td><td>${u[1]}</td></tr>`;
+      });
+
+      // Insert into page
+      document.getElementById("board").innerHTML = html;
+    })
+    .catch(err => {
+      console.error("Error loading stats.json:", err);
+      document.getElementById("board").innerHTML = "<tr><td colspan='3'>No data yet</td></tr>";
+    });
+</script>
+
+</body>
+</html>
