@@ -1,348 +1,129 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extremely Weeb - المشاهدة</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --primary: #FF0055;
-            --bg: #0f0f13;
-            --card-bg: #1a1a20;
-            --text: #ffffff;
-            --success: #00ff88;
-            --server-btn-bg: #25252e;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azumanga Daioh</title>
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            padding-bottom: 50px;
-        }
+<style>
+:root {
+    --primary:#ff0055;
+    --bg:#0f0f13;
+    --card:#1a1a20;
+    --text:#fff;
+}
 
-        /* --- Video Player --- */
-        .video-container {
-            width: 100%;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #000;
-            aspect-ratio: 16/9;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Segoe UI,Tahoma;
+}
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
+.player {
+    position:sticky;
+    top:0;
+    aspect-ratio:16/9;
+    background:black;
+}
 
-        .container { padding: 15px; }
+iframe {
+    width:100%;
+    height:100%;
+    border:none;
+}
 
-        /* --- Header Info --- */
-        .anime-title { font-size: 1.4rem; margin: 10px 0 5px; color: var(--primary); }
-        .anime-ep-title { font-size: 0.9rem; color: #aaa; margin-bottom: 15px; }
+.container { padding:15px }
 
-        /* --- Server Selector (New Feature) --- */
-        .servers-section {
-            margin-bottom: 20px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
+.servers {
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+}
 
-        .section-label { font-size: 0.8rem; color: #888; margin-bottom: 8px; display: block; }
+.server {
+    padding:8px 12px;
+    background:#25252e;
+    border-radius:6px;
+    cursor:pointer;
+}
 
-        .server-list {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: none; /* Hide scrollbar for cleaner look */
-        }
-        
-        .server-btn {
-            background: var(--server-btn-bg);
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 8px 12px;
-            color: white;
-            cursor: pointer;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-            font-size: 0.85rem;
-        }
+.server.active {
+    background:var(--primary);
+}
 
-        .server-btn img {
-            width: 16px;
-            height: 16px;
-            object-fit: contain;
-        }
+.ep {
+    background:var(--card);
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:8px;
+    cursor:pointer;
+}
 
-        .server-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.4);
-        }
-
-        /* --- Episode List --- */
-        .ep-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .ep-btn {
-            background: var(--card-bg);
-            border: 1px solid #333;
-            padding: 12px 15px;
-            border-radius: 8px;
-            color: white;
-            text-align: right;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .ep-btn:active, .ep-btn.active {
-            background: #2a2a35;
-            border-left: 4px solid var(--primary);
-        }
-
-        .ep-num { font-weight: bold; font-size: 1rem; }
-        
-        /* Checkmark */
-        .status-icon { display: none; }
-        .ep-btn.watched .status-icon { display: block; }
-
-        /* Back Button */
-        .back-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0,0,0,0.6);
-            padding: 8px 12px;
-            border-radius: 5px;
-            color: white;
-            text-decoration: none;
-            z-index: 101;
-            font-size: 0.9rem;
-            backdrop-filter: blur(4px);
-        }
-
-    </style>
+.ep.active {
+    border-right:4px solid var(--primary);
+}
+</style>
 </head>
+
 <body>
 
-    <a href="index.html" class="back-btn">🏠 القائمة</a>
+<div class="player">
+    <iframe id="player"></iframe>
+</div>
 
-    <div class="video-container">
-        <iframe id="main-player" src="" allowfullscreen></iframe>
-    </div>
+<div class="container">
+<h2>Azumanga Daioh</h2>
 
-    <div class="container">
-        <h1 class="anime-title" id="anime-title">Loading...</h1>
-        <div class="anime-ep-title" id="current-ep-label">اختر حلقة للبدء</div>
+<div class="servers">
+    <div class="server active" onclick="setServer(0)">Server 1</div>
+    <div class="server" onclick="setServer(1)">Server 2</div>
+</div>
 
-        <div class="servers-section" id="servers-box" style="display:none;">
-            <span class="section-label">السيرفرات المتاحة:</span>
-            <div class="server-list" id="server-list">
-                </div>
-        </div>
+<div id="episodes"></div>
+</div>
 
-        <h3>الحلقات</h3>
-        <div class="ep-list" id="ep-list">
-            </div>
-    </div>
+<script>
+const servers = [
+    "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "https://www.youtube.com/embed/9bZkp7q19f0"
+];
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+let currentServer = 0;
+let currentEp = 1;
 
-        // ---------------------------------------------------------
-        // 1. DATABASE (JSON Structure)
-        // ---------------------------------------------------------
-        
-        // Icon Links for Servers (You can change these urls)
-        const icons = {
-            drive: "https://upload.wikimedia.org/wikipedia/commons/d/da/Google_Drive_logo.png",
-            mega: "https://upload.wikimedia.org/wikipedia/commons/f/f3/MEGA_logo.svg",
-            vidstream: "https://cdn-icons-png.flaticon.com/512/2620/2620579.png",
-            default: "https://cdn-icons-png.flaticon.com/512/565/565296.png"
-        };
+const epBox = document.getElementById("episodes");
+const player = document.getElementById("player");
 
-        // Complete Anime Data
-        const db = {
-            "naruto": {
-                title: "Naruto Shippuden",
-                episodes: [
-                    {
-                        id: 1, 
-                        title: "عودة الكازيكاغي", 
-                        servers: [
-                            { name: "Google Drive", icon: icons.drive, url: "https://www.youtube.com/embed/QCzEEQ" },
-                            { name: "Mega NZ", icon: icons.mega, url: "https://www.youtube.com/embed/video2_example" },
-                            { name: "4Shared", icon: icons.default, url: "https://www.youtube.com/embed/video3_example" }
-                        ]
-                    },
-                    {
-                        id: 2, 
-                        title: "الاكاتسكي تتحرك", 
-                        servers: [
-                            { name: "VidStream", icon: icons.vidstream, url: "https://www.youtube.com/embed/another_video" },
-                            { name: "Google Drive", icon: icons.drive, url: "https://www.youtube.com/embed/another_video_2" }
-                        ]
-                    },
-                    // Add more episodes here...
-                ]
-            },
-            "onepiece": {
-                title: "One Piece",
-                episodes: [
-                    {
-                        id: 1,
-                        title: "بداية الرحلة",
-                        servers: [
-                            { name: "FastServer", icon: icons.default, url: "https://www.youtube.com/embed/S8_YwFLCh4U" }
-                        ]
-                    }
-                ]
-            }
-        };
+for (let i=1;i<=26;i++) {
+    const d = document.createElement("div");
+    d.className="ep";
+    d.innerText="الحلقة "+i;
+    d.onclick=()=>loadEp(i,d);
+    epBox.appendChild(d);
+}
 
-        // ---------------------------------------------------------
-        // 2. INITIALIZATION
-        // ---------------------------------------------------------
+function loadEp(ep,el) {
+    document.querySelectorAll(".ep").forEach(e=>e.classList.remove("active"));
+    el.classList.add("active");
+    currentEp = ep;
+    player.src = servers[currentServer];
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const animeId = urlParams.get('id') || 'naruto'; 
-        const data = db[animeId];
+    localStorage.setItem("ext_last",JSON.stringify({
+        anime:"Azumanga Daioh",
+        ep:ep,
+        url:"Azumanga_Daioh.html"
+    }));
+}
 
-        // Set Headers
-        document.getElementById('anime-title').innerText = data ? data.title : "Anime Not Found";
-        const player = document.getElementById('main-player');
-        const epListContainer = document.getElementById('ep-list');
-        const serverListContainer = document.getElementById('server-list');
-        const serversBox = document.getElementById('servers-box');
+function setServer(i) {
+    currentServer=i;
+    document.querySelectorAll(".server").forEach(s=>s.classList.remove("active"));
+    document.querySelectorAll(".server")[i].classList.add("active");
+    player.src = servers[i];
+}
+</script>
 
-        // Render Episode List
-        if (data) {
-            data.episodes.forEach((ep, index) => {
-                const btn = document.createElement('div');
-                btn.className = 'ep-btn';
-                btn.id = `ep-btn-${ep.id}`;
-                btn.innerHTML = `
-                    <div class="ep-info">
-                        <span class="ep-num">الحلقة ${ep.id}</span>
-                    </div>
-                    <div class="status-icon">✅</div>
-                `;
-                
-                // Click: Select Episode
-                btn.onclick = () => selectEpisode(ep, btn);
-                epListContainer.appendChild(btn);
-            });
-        }
-
-        // ---------------------------------------------------------
-        // 3. LOGIC FUNCTIONS
-        // ---------------------------------------------------------
-
-        function selectEpisode(episodeData, btnElement) {
-            // 1. UI: Highlight active episode
-            document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
-
-            // 2. UI: Show Server Section
-            serversBox.style.display = 'block';
-            document.getElementById('current-ep-label').innerText = `الحلقة ${episodeData.id}: ${episodeData.title}`;
-
-            // 3. Logic: Render Servers for this episode
-            renderServers(episodeData.servers);
-
-            // 4. Logic: Auto-play first server
-            if (episodeData.servers.length > 0) {
-                changeServer(episodeData.servers[0].url, 0);
-            }
-
-            // 5. Save Progress
-            markAsWatched(animeId, episodeData.id, btnElement);
-        }
-
-        function renderServers(servers) {
-            serverListContainer.innerHTML = ''; // Clear old servers
-            
-            servers.forEach((server, index) => {
-                const sBtn = document.createElement('button');
-                sBtn.className = 'server-btn';
-                sBtn.id = `server-btn-${index}`;
-                
-                // Icon + Name
-                sBtn.innerHTML = `<img src="${server.icon}" alt=""> ${server.name}`;
-                
-                sBtn.onclick = () => changeServer(server.url, index);
-                serverListContainer.appendChild(sBtn);
-            });
-        }
-
-        function changeServer(url, btnIndex) {
-            // Change Iframe
-            player.src = url;
-
-            // Highlight active server button
-            document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
-            const activeBtn = document.getElementById(`server-btn-${btnIndex}`);
-            if(activeBtn) activeBtn.classList.add('active');
-        }
-
-        function markAsWatched(animeId, epId, btnElement) {
-            // Add checkmark visually
-            btnElement.classList.add('watched');
-
-            // Save Episode History
-            const key = `extWeeb_${animeId}_watched`;
-            let watched = JSON.parse(localStorage.getItem(key)) || [];
-            if (!watched.includes(epId)) {
-                watched.push(epId);
-                localStorage.setItem(key, JSON.stringify(watched));
-            }
-
-            // Save "Last Watched" for Main Menu banner
-            const resumeData = {
-                id: animeId,
-                title: data.title,
-                season: 1, // You can make this dynamic if needed
-                episode: epId,
-                url: window.location.href // Saves page link
-            };
-            localStorage.setItem('extWeeb_lastWatch', JSON.stringify(resumeData));
-        }
-
-        // ---------------------------------------------------------
-        // 4. ON LOAD: Restore History
-        // ---------------------------------------------------------
-        window.onload = () => {
-            const key = `extWeeb_${animeId}_watched`;
-            const watched = JSON.parse(localStorage.getItem(key)) || [];
-            
-            watched.forEach(epId => {
-                const el = document.getElementById(`ep-btn-${epId}`);
-                if (el) el.classList.add('watched');
-            });
-        };
-
-    </script>
 </body>
 </html>
+
