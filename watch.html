@@ -24,16 +24,15 @@
             padding-bottom: 50px;
         }
 
-        /* --- Video Player --- */
-        .video-container {
-            width: 100%;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #000;
-            aspect-ratio: 16/9;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
+/* استبدل تعريف .video-container الحالي بالتالي */
+.video-container {
+    width: 100%;
+    position: relative; /* لم يعد ثابتاً */
+    z-index: 100;
+    background: #000;
+    aspect-ratio: 16/9;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
 
         iframe {
             width: 100%;
