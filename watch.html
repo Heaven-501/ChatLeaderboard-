@@ -24,15 +24,15 @@
             padding-bottom: 50px;
         }
 
-/* استبدل تعريف .video-container الحالي بالتالي */
-.video-container {
-    width: 100%;
-    position: relative; /* لم يعد ثابتاً */
-    z-index: 100;
-    background: #000;
-    aspect-ratio: 16/9;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-}
+        /* --- Video Player --- */
+        .video-container {
+            width: 100%;
+            position: relative; /* kept relative so it scrolls with the page (option A) */
+            z-index: 100;
+            background: #000;
+            aspect-ratio: 16/9;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
 
         iframe {
             width: 100%;
@@ -63,6 +63,7 @@
             gap: 10px;
             overflow-x: auto;
             padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch; /* smooth on mobile */
             scrollbar-width: none; /* Hide scrollbar for cleaner look */
         }
         
@@ -141,6 +142,29 @@
             backdrop-filter: blur(4px);
         }
 
+        /* Fullscreen / External buttons (kept unobtrusive) */
+        .fullscreen-btn, .external-btn{
+          position: absolute;
+          left: 12px; /* left because page is RTL */
+          top: 12px;
+          z-index: 120;
+          background: rgba(0,0,0,0.6);
+          color: #fff;
+          border: none;
+          padding: 8px 10px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 1rem;
+          backdrop-filter: blur(4px);
+          margin-left: 6px;
+        }
+        .external-btn { left: 72px; } /* offset to the right of fullscreen button */
+        .fullscreen-btn:active, .external-btn:active { transform: scale(0.98); }
+
+        /* Optional: show a subtle scrollbar on webkit */
+        .server-list::-webkit-scrollbar { height: 8px; }
+        .server-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 6px; }
+
     </style>
 </head>
 <body>
@@ -148,7 +172,9 @@
     <a href="index.html" class="back-btn">🏠 القائمة</a>
 
     <div class="video-container">
-        <iframe id="main-player" src="" allowfullscreen></iframe>
+        <iframe id="main-player" src="" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        <button id="fullscreen-btn" class="fullscreen-btn" aria-label="Fullscreen">⤢</button>
+        <button id="external-btn" class="external-btn" aria-label="Open externally" style="display:none;">🌐 افتح بالخارج</button>
     </div>
 
     <div class="container">
@@ -168,7 +194,7 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
+        if (tg && typeof tg.expand === 'function') tg.expand();
 
         // ---------------------------------------------------------
         // 1. DATABASE (JSON Structure)
@@ -200,12 +226,12 @@ const db = {
             },
             {
                 id: 2, 
-                title: "أوساكا اليوم أيضًا / P.E.، الكرة الطائرة / الفواق / الدماغ... / علامة تجارية جديدة", 
+                title: "الاكاتسكي تتحرك", 
                 servers: [
                     {
                         name: "OK.ru",
                         icon: icons["OK.ru"], 
-                        url: "https://ok.ru/videoembed/11551280335438?nochat=1"
+                        url: "https://ok.ru/video/11551280335438"
                     },
                 ]
             }
@@ -337,6 +363,69 @@ const db = {
             };
             localStorage.setItem('extWeeb_lastWatch', JSON.stringify(resumeData));
         }
+
+        // ---------------------------------------------------------
+        // 3.b Fullscreen / External Open Helpers (tries fullscreen, falls back to opening externally)
+        // ---------------------------------------------------------
+        (function(){
+          const fsBtn = document.getElementById('fullscreen-btn');
+          const extBtn = document.getElementById('external-btn');
+
+          // Detect Telegram WebApp environment (simple detection)
+          const inTelegram = !!(window.Telegram && window.Telegram.WebApp);
+
+          // Show external button if inside Telegram (useful fallback)
+          if (inTelegram && extBtn) extBtn.style.display = 'inline-block';
+
+          function openExternally(url) {
+            if (!url) return;
+            try {
+              if (inTelegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openLink === 'function') {
+                window.Telegram.WebApp.openLink(url);
+                return;
+              }
+            } catch(e) {
+              console.warn('tg.openLink failed', e);
+            }
+            try { window.open(url, '_blank', 'noopener'); }
+            catch(e){ window.location.href = url; }
+          }
+
+          async function tryFullscreenOrFallback() {
+            const src = player && player.src;
+            if (!src) return;
+
+            try {
+              if (player.requestFullscreen) {
+                await player.requestFullscreen();
+                return;
+              }
+              if (player.webkitEnterFullscreen) {
+                try { player.webkitEnterFullscreen(); return; } catch(e){}
+              }
+            } catch (err) {
+              console.warn('requestFullscreen failed:', err);
+            }
+
+            openExternally(src);
+          }
+
+          if (fsBtn) fsBtn.addEventListener('click', tryFullscreenOrFallback, { passive: true });
+          if (extBtn) extBtn.addEventListener('click', () => openExternally(player.src), { passive: true });
+
+          // Keep external button enabled/disabled based on src attribute
+          const observer = new MutationObserver(() => {
+            if (!extBtn) return;
+            if (player && player.src) {
+              extBtn.style.opacity = 1;
+              extBtn.disabled = false;
+            } else {
+              extBtn.style.opacity = 0.6;
+              extBtn.disabled = true;
+            }
+          });
+          if (player) observer.observe(player, { attributes: true, attributeFilter: ['src'] });
+        })();
 
         // ---------------------------------------------------------
         // 4. ON LOAD: Restore History
